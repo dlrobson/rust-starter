@@ -28,3 +28,15 @@ updates:
         # All dependencies will be updated together in a single PR
         patterns:
           - "*"
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "dlrobson"
+    groups:
+      dev-dependencies:
+        # All dependencies will be updated together in a single PR
+        patterns:
+          - "*"
