@@ -37,8 +37,7 @@ RUN groupadd -g ${GID} ${USERNAME} \
 USER ${USERNAME}
 
 RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash \
-    && cargo binstall --no-symlinks -y grcov --version 0.8 \
-    && cargo binstall --no-symlinks -y cargo-spellcheck --version 0.12
+    && cargo binstall --no-symlinks -y grcov --version 0.8
 
 # Re-install cargo-binstall and cargo-chef
 COPY --from=planner --chown=${UID}:${GID} /app/recipe.json /tmp/recipe.json
