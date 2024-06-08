@@ -1,0 +1,46 @@
+name: Rust Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_LOG: debug
+  RUST_BACKTRACE: full
+
+# This stops any running jobs when a new commit is pushed
+# Reference: https://stackoverflow.com/a/72408109
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+# TODO(dan): Add caching for the cargo registry
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: rust:slim
+      options: --user root
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run tests
+        run: cargo test --locked --profile release
+
+      - name: Rust Lint
+        if: ${{ !cancelled() }}
+        run: cargo clippy --profile release --no-deps -- --deny warnings
+
+      - name: Generate Docs
+        if: ${{ !cancelled() }}
+        run: cargo doc --profile release --locked --no-deps --document-private-items --all-features
+
+      - name: Upload Docs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: target/x86_64-unknown-linux-gnu/doc

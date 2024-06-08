@@ -1,0 +1,16 @@
+[package]
+name = "rust-starter"
+version = "0.0.0"
+authors = ["Dan Robson <danr.236@gmail.com>"]
+edition = "2021"
+repository = "https://github.com/dlrobson/rust-starter"
+readme = "README.md"
+license = "MIT"
+keywords = ["starter"]
+description = """
+Rust starter project.
+"""
+
+[dependencies]
+
+[dev-dependencies]
