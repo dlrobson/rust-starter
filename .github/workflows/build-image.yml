@@ -3,21 +3,25 @@ name: Docker Build Image
 # Runs on push to main when a Dockerfile is changed, or on pull request  when a Dockerfile is changed
 on:
   workflow_call:
-    # secrets:
-    #   GHCR_TOKEN:
-    #     required: true
-
     outputs:
-      image-name:
+      name:
         description: 'The name of the image to be built and pushed'
-        value: ${{ jobs.build_image.outputs.image-name }}
+        value: 'build-image'
+      tag:
+        description: 'The tag of the image to be built and pushed'
+        value: ${{ jobs.build_image.outputs.tag }}
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}
+  PACKAGE_NAME: ${{ github.event.repository.name }}
   
 jobs:
   build_image:
     name: Build and Publish Image
     runs-on: ubuntu-latest
     outputs:
-      image-name: ${{ steps.image-tag.outputs.name }}
+      name: ${{ env.IMAGE_NAME }}
+      tag: ${{ steps.tag.outputs.tag }}
     permissions:
       packages: write
     steps:
@@ -25,14 +29,12 @@ jobs:
 
       # Determines the target tag for the image. If the branch is main, the tag is latest. Otherwise, the tag is the PR-{PR number}
       - name: Determine tag
-        id: image-tag
+        id: tag
         run: |
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then \
             echo "tag=latest" >> $GITHUB_OUTPUT; \
-            echo "name=ghcr.io/${{ github.repository }}:latest" >> $GITHUB_OUTPUT; \
           else \
             echo "tag=PR-${{ github.event.number }}" >> $GITHUB_OUTPUT; \
-            echo "name=ghcr.io/${{ github.repository }}:PR-${{ github.event.number }}" >> $GITHUB_OUTPUT; \
           fi
       
       - uses: dorny/paths-filter@v3
@@ -49,9 +51,9 @@ jobs:
         id: metadata
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ${{ env.IMAGE_NAME }}
           tags: |
-            ${{ steps.image-tag.outputs.tag }}
+            ${{ steps.tag.outputs.tag }}
 
       - name: Set up QEMU
         if: steps.dependency-updates.outputs.src == 'true'
@@ -69,39 +71,24 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push Image
-        if: steps.dependency-updates.outputs.src == 'true'
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./dockerfiles/build.Dockerfile
-          push: true
-          annotations: |
-            ${{ steps.metadata.outputs.annotations }}
-          tags: |
-            ${{ steps.metadata.outputs.tags }}
-          labels: |
-            ${{ steps.metadata.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
-          cache-from: type=registry,ref=${{ steps.image-tag.outputs.name }}
-          cache-to: type=inline
-      - uses: actions/delete-package-versions@v5
-        with: 
-          package-name: ${{ github.event.repository.name }}
-          package-type: 'container'
-          min-versions-to-keep: 0
-          delete-only-untagged-versions: 'true'
-
-      # - name: Delete all containers from package without tags
-      #   uses: Chizkiyahu/delete-untagged-ghcr-action@v4
+      # - name: Build and Push Image
+      #   if: steps.dependency-updates.outputs.src == 'true'
+      #   uses: docker/build-push-action@v5
       #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     repository_owner: ${{ github.repository_owner }}
-      #     repository: ${{ github.repository }}
-      #     package_name: ${{ inputs.image-name }}
-      #     untagged_only: true
-      #     owner_type: user
-      #     # This needs to be false if you are using a multiplatform image
-      #     # Otherwise, it will delete layers that will result in the 
-      #     # `manifest unknown` error
-      #     except_untagged_multiplatform: true
+      #     context: .
+      #     file: ./dockerfiles/build.Dockerfile
+      #     push: true
+      #     annotations: |
+      #       ${{ steps.metadata.outputs.annotations }}
+      #     tags: |
+      #       ${{ steps.metadata.outputs.tags }}
+      #     labels: |
+      #       ${{ steps.metadata.outputs.labels }}
+      #     platforms: linux/amd64,linux/arm64
+      #     cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+      #     cache-to: type=inline
+
+      - uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          package: ${{ env.PACKAGE_NAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}

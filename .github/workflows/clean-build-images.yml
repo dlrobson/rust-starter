@@ -1,0 +1,20 @@
+name: Cleanup Pull Request Images
+
+on:
+  pull_request:
+    types: [closed]
+
+env:
+  PACKAGE_NAME: ${{ github.event.repository.name }}
+
+jobs:
+  ghcr-cleanup-image:
+    name: ghcr cleanup action
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete image
+        uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          package: ${{ env.PACKAGE_NAME }}
+          tags: PR-${{github.event.pull_request.number}}
+          token: ${{ secrets.GITHUB_TOKEN }}
