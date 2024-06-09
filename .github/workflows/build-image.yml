@@ -82,8 +82,6 @@ jobs:
             ${{ steps.metadata.outputs.labels }}
           platforms: linux/amd64,linux/arm64
 
-          # TODO(dlrobson): Use some cache for PRs
-
       - name: Delete all containers from package without tags
         uses: Chizkiyahu/delete-untagged-ghcr-action@v3
         with:
@@ -93,6 +91,4 @@ jobs:
           package_name: ${{ inputs.image-name }}
           untagged_only: true
           owner_type: user
-          # TODO(dlrobson): This was true before, but false makes more sense here.
-          # except_untagged_multiplatform: false
-          except_untagged_multiplatform: true
+          except_untagged_multiplatform: false
