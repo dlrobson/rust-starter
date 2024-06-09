@@ -6,31 +6,32 @@ on:
     outputs:
       name:
         description: 'The name of the image to be built and pushed'
-        value: 'build-image'
+        value: ${{ jobs.build-image.outputs.name }}
       tag:
         description: 'The tag of the image to be built and pushed'
-        value: ${{ jobs.build_image.outputs.tag }}
+        value: ${{ jobs.build-image.outputs.tag }}
 
 env:
-  IMAGE_NAME: ghcr.io/${{ github.repository }}
-  PACKAGE_NAME: ${{ github.event.repository.name }}
+  IMAGE_NAME: ghcr.io/${{ github.repository }}-build-env
+  PACKAGE_NAME: ${{ github.event.repository.name }}-build-env
   
 jobs:
-  build_image:
+  build-image:
     name: Build and Publish Image
     runs-on: ubuntu-latest
     outputs:
       name: ${{ env.IMAGE_NAME }}
-      tag: ${{ steps.tag.outputs.tag }}
+      tag: ${{ steps.job-output.outputs.tag }}
     permissions:
       packages: write
     steps:
       - uses: actions/checkout@v4
 
       # Determines the target tag for the image. If the branch is main, the tag is latest. Otherwise, the tag is the PR-{PR number}
-      - name: Determine tag
-        id: tag
+      - name: Set job output
+        id: job-output
         run: |
+          # echo "name=${{ env.IMAGE_NAME }}" >> $GITHUB_OUTPUT; \
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then \
             echo "tag=latest" >> $GITHUB_OUTPUT; \
           else \
@@ -53,7 +54,7 @@ jobs:
         with:
           images: ${{ env.IMAGE_NAME }}
           tags: |
-            ${{ steps.tag.outputs.tag }}
+            ${{ steps.job-output.outputs.tag }}
 
       - name: Set up QEMU
         if: steps.dependency-updates.outputs.src == 'true'
@@ -71,22 +72,22 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Build and Push Image
-      #   if: steps.dependency-updates.outputs.src == 'true'
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: .
-      #     file: ./dockerfiles/build.Dockerfile
-      #     push: true
-      #     annotations: |
-      #       ${{ steps.metadata.outputs.annotations }}
-      #     tags: |
-      #       ${{ steps.metadata.outputs.tags }}
-      #     labels: |
-      #       ${{ steps.metadata.outputs.labels }}
-      #     platforms: linux/amd64,linux/arm64
-      #     cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
-      #     cache-to: type=inline
+      - name: Build and Push Image
+        if: steps.dependency-updates.outputs.src == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./dockerfiles/build.Dockerfile
+          push: true
+          annotations: |
+            ${{ steps.metadata.outputs.annotations }}
+          tags: |
+            ${{ steps.metadata.outputs.tags }}
+          labels: |
+            ${{ steps.metadata.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:${{ steps.job-output.outputs.tag }}
+          cache-to: type=inline
 
       - uses: dataaxiom/ghcr-cleanup-action@v1
         with:
