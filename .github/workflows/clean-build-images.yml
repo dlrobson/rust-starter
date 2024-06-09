@@ -1,5 +1,9 @@
 name: Cleanup Pull Request Images
 
+# We create an image for each PR that modifies files that impact the final build image.
+# This action deletes the image created for the PR when the PR is closed. If a PR is
+# reopened, the image will end up being rebuilt.
+
 on:
   pull_request:
     types: [closed]
