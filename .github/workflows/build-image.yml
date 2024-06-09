@@ -41,6 +41,7 @@ jobs:
             src:
               - 'dockerfiles/**'
               - 'Cargo.lock'
+              - '.github/workflows/build-image.yml'
 
       - name: Docker metadata
         if: steps.dependency-updates.outputs.src == 'true'
