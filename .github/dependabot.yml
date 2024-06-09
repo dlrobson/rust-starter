@@ -30,7 +30,7 @@ updates:
           - "*"
 
   - package-ecosystem: "docker"
-    directory: "/"
+    directory: "/dockerfiles"
     schedule:
       interval: "weekly"
     reviewers:
