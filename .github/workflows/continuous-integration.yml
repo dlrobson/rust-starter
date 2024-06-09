@@ -20,8 +20,10 @@ concurrency:
 jobs:
   build-image:
     uses: ./.github/workflows/build-image.yml
-    secrets:
-      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+    permissions:
+      packages: write
+    # secrets:
+    #   GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
     
   build:
     runs-on: ubuntu-latest

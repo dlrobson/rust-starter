@@ -3,9 +3,9 @@ name: Docker Build Image
 # Runs on push to main when a Dockerfile is changed, or on pull request  when a Dockerfile is changed
 on:
   workflow_call:
-    secrets:
-      GHCR_TOKEN:
-        required: true
+    # secrets:
+    #   GHCR_TOKEN:
+    #     required: true
 
     outputs:
       image-name:
@@ -18,6 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       image-name: ${{ steps.image-tag.outputs.name }}
+    permissions:
+      packages: write
     steps:
       - uses: actions/checkout@v4
 
@@ -32,7 +34,6 @@ jobs:
             echo "tag=PR-${{ github.event.number }}" >> $GITHUB_OUTPUT; \
             echo "name=ghcr.io/${{ github.repository }}:PR-${{ github.event.number }}" >> $GITHUB_OUTPUT; \
           fi
-
       
       - uses: dorny/paths-filter@v3
         id: dependency-updates
@@ -66,7 +67,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push Image
         if: steps.dependency-updates.outputs.src == 'true'
@@ -84,17 +85,23 @@ jobs:
           platforms: linux/amd64,linux/arm64
           cache-from: type=registry,ref=${{ steps.image-tag.outputs.name }}
           cache-to: type=inline
+      - uses: actions/delete-package-versions@v5
+        with: 
+          package-name: ${{ github.event.repository.name }}
+          package-type: 'container'
+          min-versions-to-keep: 0
+          delete-only-untagged-versions: 'true'
 
-      - name: Delete all containers from package without tags
-        uses: Chizkiyahu/delete-untagged-ghcr-action@v4
-        with:
-          token: ${{ secrets.GHCR_TOKEN }}
-          repository_owner: ${{ github.repository_owner }}
-          repository: ${{ github.repository }}
-          package_name: ${{ inputs.image-name }}
-          untagged_only: true
-          owner_type: user
-          # This needs to be false if you are using a multiplatform image
-          # Otherwise, it will delete layers that will result in the 
-          # `manifest unknown` error
-          except_untagged_multiplatform: true
+      # - name: Delete all containers from package without tags
+      #   uses: Chizkiyahu/delete-untagged-ghcr-action@v4
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     repository_owner: ${{ github.repository_owner }}
+      #     repository: ${{ github.repository }}
+      #     package_name: ${{ inputs.image-name }}
+      #     untagged_only: true
+      #     owner_type: user
+      #     # This needs to be false if you are using a multiplatform image
+      #     # Otherwise, it will delete layers that will result in the 
+      #     # `manifest unknown` error
+      #     except_untagged_multiplatform: true
