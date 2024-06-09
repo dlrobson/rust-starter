@@ -91,4 +91,4 @@ jobs:
           package_name: ${{ inputs.image-name }}
           untagged_only: true
           owner_type: user
-          except_untagged_multiplatform: false
+          except_untagged_multiplatform: true
