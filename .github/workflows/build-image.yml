@@ -92,4 +92,7 @@ jobs:
           package_name: ${{ inputs.image-name }}
           untagged_only: true
           owner_type: user
+          # This needs to be false if you are using a multiplatform image
+          # Otherwise, it will delete layers that will result in the 
+          # `manifest unknown` error
           except_untagged_multiplatform: true
