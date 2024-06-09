@@ -34,65 +34,65 @@ jobs:
           fi
 
       
-      # - uses: dorny/paths-filter@v3
-      #   id: dependency-updates
-      #   with:
-      #     filters: |
-      #       src:
-      #         - 'dockerfiles/**'
-      #         - 'Cargo.lock'
+      - uses: dorny/paths-filter@v3
+        id: dependency-updates
+        with:
+          filters: |
+            src:
+              - 'dockerfiles/**'
+              - 'Cargo.lock'
 
-      # - name: Docker metadata
-      #   if: steps.dependency-updates.outputs.src == 'true'
-      #   id: metadata
-      #   uses: docker/metadata-action@v5
-      #   with:
-      #     images: ghcr.io/${{ github.repository }}
-      #     tags: |
-      #       ${{ steps.image-tag.outputs.tag }}
+      - name: Docker metadata
+        if: steps.dependency-updates.outputs.src == 'true'
+        id: metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            ${{ steps.image-tag.outputs.tag }}
 
-      # - name: Set up QEMU
-      #   if: steps.dependency-updates.outputs.src == 'true'
-      #   uses: docker/setup-qemu-action@v3
+      - name: Set up QEMU
+        if: steps.dependency-updates.outputs.src == 'true'
+        uses: docker/setup-qemu-action@v3
 
-      # - name: Set up Docker Buildx
-      #   if: steps.dependency-updates.outputs.src == 'true'
-      #   uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        if: steps.dependency-updates.outputs.src == 'true'
+        uses: docker/setup-buildx-action@v3
 
-      # - name: Login to Github Container Registry
-      #   if: steps.dependency-updates.outputs.src == 'true'
-      #   uses: docker/login-action@v3
-      #   with:
-      #     registry: ghcr.io
-      #     username: ${{ github.repository_owner }}
-      #     password: ${{ secrets.GHCR_TOKEN }}
+      - name: Login to Github Container Registry
+        if: steps.dependency-updates.outputs.src == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
-      # - name: Build and Push Image
-      #   if: steps.dependency-updates.outputs.src == 'true'
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: .
-      #     file: ./dockerfiles/build.Dockerfile
-      #     push: true
-      #     annotations: |
-      #       ${{ steps.metadata.outputs.annotations }}
-      #     tags: |
-      #       ${{ steps.metadata.outputs.tags }}
-      #     labels: |
-      #       ${{ steps.metadata.outputs.labels }}
-      #     platforms: linux/amd64,linux/arm64
+      - name: Build and Push Image
+        if: steps.dependency-updates.outputs.src == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./dockerfiles/build.Dockerfile
+          push: true
+          annotations: |
+            ${{ steps.metadata.outputs.annotations }}
+          tags: |
+            ${{ steps.metadata.outputs.tags }}
+          labels: |
+            ${{ steps.metadata.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
 
-      #     # TODO(dlrobson): Use some cache for PRs
+          # TODO(dlrobson): Use some cache for PRs
 
-      # - name: Delete all containers from package without tags
-      #   uses: Chizkiyahu/delete-untagged-ghcr-action@v3
-      #   with:
-      #     token: ${{ secrets.GHCR_TOKEN }}
-      #     repository_owner: ${{ github.repository_owner }}
-      #     repository: ${{ github.repository }}
-      #     package_name: ${{ inputs.image-name }}
-      #     untagged_only: true
-      #     owner_type: user
-      #     # TODO(dlrobson): This was true before, but false makes more sense here.
-      #     # except_untagged_multiplatform: false
-      #     except_untagged_multiplatform: true
+      - name: Delete all containers from package without tags
+        uses: Chizkiyahu/delete-untagged-ghcr-action@v3
+        with:
+          token: ${{ secrets.GHCR_TOKEN }}
+          repository_owner: ${{ github.repository_owner }}
+          repository: ${{ github.repository }}
+          package_name: ${{ inputs.image-name }}
+          untagged_only: true
+          owner_type: user
+          # TODO(dlrobson): This was true before, but false makes more sense here.
+          # except_untagged_multiplatform: false
+          except_untagged_multiplatform: true

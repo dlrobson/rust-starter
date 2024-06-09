@@ -99,7 +99,7 @@ jobs:
       options: --user root
     env:
       RUSTFLAGS: -Cinstrument-coverage
-      LLVM_PROFILE_FILE: ${{ github.repository }}-%p-%m.profraw"
+      LLVM_PROFILE_FILE: ${{ github.event.repository.name }}-%p-%m.profraw
     # Needed to write a coverage report to the PR
     permissions: write-all
      
@@ -108,8 +108,9 @@ jobs:
 
       - uses: actions/cache@v3
         with:
+          # Change This to profraw files instead
           path: |
-            target/**/*[\!.gcno\|\!.gcda]
+            target/**/*[\!.gcno\|\!.gcda|\!.profraw]
           key: coverage-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
             coverage-
@@ -118,6 +119,7 @@ jobs:
         run: |
           cargo build --locked    
           cargo test --locked -- --nocapture
+          ls -lah .
 
       - name: Generate LCOV coverage file
         run: |
@@ -127,7 +129,7 @@ jobs:
             --keep-only "src/**" --ignore-not-existing
 
       - name: Report code coverage
-        uses: zgosalvez/github-actions-report-lcov@v3
+        uses: zgosalvez/github-actions-report-lcov@v4
         with:
           coverage-files: coverage.lcov
           minimum-coverage: 90

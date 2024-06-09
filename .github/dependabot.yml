@@ -6,7 +6,7 @@ updates:
     schedule:
       interval: "weekly"
     reviewers:
-      - "dlrobson"
+      - "${{ github.repository_owner }}"
     # Create a group of dependencies to be updated together in one pull request
     # The PR name will be dev-dependencies
     groups:
@@ -20,7 +20,7 @@ updates:
     schedule:
       interval: "weekly"
     reviewers:
-      - "dlrobson"
+      - "${{ github.repository_owner }}"
     # Create a group of dependencies to be updated together in one pull request
     # The PR name will be dev-dependencies
     groups:
@@ -34,7 +34,7 @@ updates:
     schedule:
       interval: "weekly"
     reviewers:
-      - "dlrobson"
+      - "${{ github.repository_owner }}"
     groups:
       dev-dependencies:
         # All dependencies will be updated together in a single PR
