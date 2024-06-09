@@ -1,6 +1,6 @@
 name: Docker Build Image
 
-# Runs on push to main when a Dockerfile is changed, or on pull request  when a Dockerfile is changed
+# Runs on push to main when a Dockerfile is changed, or on pull request when a Dockerfile is changed.
 on:
   workflow_call:
     outputs:
