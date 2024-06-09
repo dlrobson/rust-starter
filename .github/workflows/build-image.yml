@@ -82,6 +82,8 @@ jobs:
           labels: |
             ${{ steps.metadata.outputs.labels }}
           platforms: linux/amd64,linux/arm64
+          cache-from: type=registry,ref=${{ steps.image-tag.outputs.name }}
+          cache-to: type=inline
 
       - name: Delete all containers from package without tags
         uses: Chizkiyahu/delete-untagged-ghcr-action@v4
