@@ -3,36 +3,39 @@ name: Docker Build Image
 # Runs on push to main when a Dockerfile is changed, or on pull request  when a Dockerfile is changed
 on:
   workflow_call:
-    secrets:
-      GHCR_TOKEN:
-        required: true
-
     outputs:
-      image-name:
+      name:
         description: 'The name of the image to be built and pushed'
-        value: ${{ jobs.build_image.outputs.image-name }}
+        value: ${{ jobs.build-image.outputs.name }}
+      tag:
+        description: 'The tag of the image to be built and pushed'
+        value: ${{ jobs.build-image.outputs.tag }}
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}-build-env
+  PACKAGE_NAME: ${{ github.event.repository.name }}-build-env
   
 jobs:
-  build_image:
+  build-image:
     name: Build and Publish Image
     runs-on: ubuntu-latest
     outputs:
-      image-name: ${{ steps.image-tag.outputs.name }}
+      name: ${{ env.IMAGE_NAME }}
+      tag: ${{ steps.job-output.outputs.tag }}
+    permissions:
+      packages: write
     steps:
       - uses: actions/checkout@v4
 
       # Determines the target tag for the image. If the branch is main, the tag is latest. Otherwise, the tag is the PR-{PR number}
-      - name: Determine tag
-        id: image-tag
+      - name: Set job output
+        id: job-output
         run: |
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then \
             echo "tag=latest" >> $GITHUB_OUTPUT; \
-            echo "name=ghcr.io/${{ github.repository }}:latest" >> $GITHUB_OUTPUT; \
           else \
             echo "tag=PR-${{ github.event.number }}" >> $GITHUB_OUTPUT; \
-            echo "name=ghcr.io/${{ github.repository }}:PR-${{ github.event.number }}" >> $GITHUB_OUTPUT; \
           fi
-
       
       - uses: dorny/paths-filter@v3
         id: dependency-updates
@@ -48,9 +51,9 @@ jobs:
         id: metadata
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ${{ env.IMAGE_NAME }}
           tags: |
-            ${{ steps.image-tag.outputs.tag }}
+            ${{ steps.job-output.outputs.tag }}
 
       - name: Set up QEMU
         if: steps.dependency-updates.outputs.src == 'true'
@@ -66,7 +69,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push Image
         if: steps.dependency-updates.outputs.src == 'true'
@@ -82,19 +85,13 @@ jobs:
           labels: |
             ${{ steps.metadata.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=registry,ref=${{ steps.image-tag.outputs.name }}
+          cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:${{ steps.job-output.outputs.tag }}
           cache-to: type=inline
 
-      - name: Delete all containers from package without tags
-        uses: Chizkiyahu/delete-untagged-ghcr-action@v4
+      # When tags are overwritten, the old tags are not removed from the registry.
+      # This action removes the old tags. This also handles multi-arch manifests, and
+      # does not delete untagged images linked to the manifest.
+      - uses: dataaxiom/ghcr-cleanup-action@v1
         with:
-          token: ${{ secrets.GHCR_TOKEN }}
-          repository_owner: ${{ github.repository_owner }}
-          repository: ${{ github.repository }}
-          package_name: ${{ inputs.image-name }}
-          untagged_only: true
-          owner_type: user
-          # This needs to be false if you are using a multiplatform image
-          # Otherwise, it will delete layers that will result in the 
-          # `manifest unknown` error
-          except_untagged_multiplatform: true
+          package: ${{ env.PACKAGE_NAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}

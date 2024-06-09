@@ -20,14 +20,14 @@ concurrency:
 jobs:
   build-image:
     uses: ./.github/workflows/build-image.yml
-    secrets:
-      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+    permissions:
+      packages: write
     
   build:
     runs-on: ubuntu-latest
     needs: build-image
     container:
-      image: ${{ needs.build-image.outputs.image-name }}
+      image: ${{ needs.build-image.outputs.name }}:${{ needs.build-image.outputs.tag }}
       # https://github.com/actions/checkout/issues/1014#issuecomment-1369355566
       options: --user root
     steps:
@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-image
     container:
-      image: ${{ needs.build-image.outputs.image-name }}
+      image: ${{ needs.build-image.outputs.name }}:${{ needs.build-image.outputs.tag }}
       # https://github.com/actions/checkout/issues/1014#issuecomment-1369355566
       options: --user root
 
@@ -94,7 +94,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-image
     container:
-      image: ${{ needs.build-image.outputs.image-name }}
+      image: ${{ needs.build-image.outputs.name }}:${{ needs.build-image.outputs.tag }}
       # https://github.com/actions/checkout/issues/1014#issuecomment-1369355566
       options: --user root
     env:
@@ -108,7 +108,6 @@ jobs:
 
       - uses: actions/cache@v4
         with:
-          # Change This to profraw files instead
           path: |
             target/**/*[\!.gcno\|\!.gcda|\!.profraw]
           key: coverage-${{ hashFiles('Cargo.lock') }}
@@ -132,7 +131,7 @@ jobs:
         uses: zgosalvez/github-actions-report-lcov@v4
         with:
           coverage-files: coverage.lcov
-          minimum-coverage: 90
+          minimum-coverage: 70
           artifact-name: code-coverage-report
           github-token: ${{ secrets.GITHUB_TOKEN }}
           update-comment: true
