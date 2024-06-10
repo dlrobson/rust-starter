@@ -1,21 +1,25 @@
 # Rust Starter
 
-This is a simple starter project for Rust. It includes a simple hello world program. Adds the following checks through GitHub Actions.
+This is a sample starter project for Rust. It includes a simple hello world program. Adds several GitHub Actions workflows for CI/CD. It utilizes Docker build environments for faster builds, and to support a Dev Container setup.
 
-**Analyzers**
+## Docker Build Image
+
+The Docker build image is based on the official Rust image. It includes several tools for development. The Dockerfile is located in `dockerfiles/build.Dockerfile`.
+
+The Build image is created in GitHub Actions and pushed to GitHub Container Registry. The image is tagged as `ghcr.io/<owner>/<repo>-build-env:latest`. This image is utilized in subsequent steps. It is triggered only on changes to the Dockerfile or the GitHub Actions workflow.
+
+## GitHub Actions Workflows
+
+Several workflows are included in the repository. They are triggered on different events.
+
+### Analyzers
+
 - rustfmt
 - cargo-spellcheck
 - clippy
 - cargo-audit
 
-**Tests**
+### Tests
+
 - cargo test (Includes doc tests)
-- coverage (via grcov). Defaults to 70% coverage threshold.
-
-## GitHub Actions Nuances
-
-- Uses a build image with rust installed and other tools. The Dockerfile is included in the repository in `dockerfiles/build.Dockerfile`.
-- Uploads the build image to GitHub Container Registry. This is utilized for subsequent steps. Named `ghcr.io/<owner>/<repo>-build-env:latest`. This is useful for a Dev Container setup.
-- For PRs, a build image is created and pushed with the name `ghcr.io/<owner>/<repo>-build-env:PR-<PR_NUMBER>`. This validates the Dockerfile and that tests can run. This image is deleted after the PR is closed.
-- Utilizes Cache for faster builds. Caches the target directory.
-- Ends jobs early if a new commit is pushed for the same PR.
+- coverage (via grcov). Defaults to 70% coverage threshold requirement. The build will fail if the coverage is below the threshold.
