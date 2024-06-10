@@ -1,0 +1,27 @@
+{
+  "build": {
+    "args": {
+      "BASE_IMAGE": "ghcr.io/dlrobson/rust-starter-build-env:latest"
+    },
+    "context": "/tmp/dlrobson-dotfiles",
+    "dockerfile": "/tmp/dlrobson-dotfiles/Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer"
+      ]
+    }
+  },
+  "initializeCommand": {
+    "installDotfiles": "rm -rf /tmp/dlrobson-dotfiles && git clone https://github.com/dlrobson/dotfiles.git /tmp/dlrobson-dotfiles || :"
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.zsh_history,target=/home/user/.zsh_history,type=bind"
+  ],
+  "name": "${localWorkspaceFolderBasename}",
+  "runArgs": [
+    "--name",
+    "${localWorkspaceFolderBasename}_${localEnv:USER}"
+  ]
+}
