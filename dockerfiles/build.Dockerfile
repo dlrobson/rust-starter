@@ -44,6 +44,5 @@ RUN mkdir -p /tmp/workspaces \
     && curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash \
     && cargo binstall -y cargo-chef \
     && cargo chef cook --release --recipe-path recipe.json \
-    && cargo uninstall cargo-chef \
-    && cargo uninstall cargo-binstall \
+    && cargo uninstall cargo-chef cargo-binstall \
     && rm -rf /tmp/workspaces
