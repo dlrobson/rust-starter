@@ -85,8 +85,6 @@ jobs:
           labels: |
             ${{ steps.metadata.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:${{ steps.job-output.outputs.tag }}
-          cache-to: type=inline
 
       # When tags are overwritten, the old tags are not removed from the registry.
       # This action removes the old tags. This also handles multi-arch manifests, and
