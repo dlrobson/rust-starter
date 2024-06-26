@@ -78,9 +78,10 @@ jobs:
         if: ${{ !cancelled() }}
         run: cargo fmt --check
 
-      - name: Install cargo-spellcheck
+      - uses: taiki-e/install-action@v2
         if: ${{ !cancelled() }}
-        run: cargo binstall --no-symlinks -y cargo-spellcheck
+        with:
+          tool: cargo-spellcheck@0.14
 
       - name: Check spelling
         if: ${{ !cancelled() }}
@@ -119,6 +120,10 @@ jobs:
           cargo build --locked    
           cargo test --locked -- --nocapture
           ls -lah .
+
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: grcov@0.8
 
       - name: Generate LCOV coverage file
         run: |
