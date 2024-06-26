@@ -1,16 +1,22 @@
-[package]
-name = "rust-starter"
-version = "0.0.0"
+[workspace]
+resolver = "2"
+
+members = [
+    "crates/*",
+    "examples"
+]
+
+[workspace.package]
 authors = ["Dan Robson <danr.236@gmail.com>"]
 edition = "2021"
 repository = "https://github.com/dlrobson/rust-starter"
 readme = "README.md"
 license = "MIT"
 keywords = ["starter"]
+version = "0.1.0"
 description = """
 Rust starter project.
 """
 
-[dependencies]
-
-[dev-dependencies]
+[workspace.lint.clippy]
+pedantic = "deny"

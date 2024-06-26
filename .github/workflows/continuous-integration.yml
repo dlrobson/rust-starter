@@ -130,7 +130,7 @@ jobs:
           grcov . \
             --branch -s . --binary-path ./target/ \
             -t lcov -o coverage.lcov \
-            --keep-only "src/**" --ignore-not-existing
+            --keep-only "crates/**" --ignore-not-existing
 
       - name: Report code coverage
         uses: zgosalvez/github-actions-report-lcov@v4

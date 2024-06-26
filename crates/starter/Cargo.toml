@@ -1,0 +1,17 @@
+[package]
+name = "starter"
+authors.workspace = true
+edition.workspace = true
+repository.workspace = true
+readme.workspace = true
+license.workspace = true
+keywords.workspace = true
+description.workspace = true
+version.workspace = true
+
+[lint]
+workspace = true
+
+[dependencies]
+
+[dev-dependencies]

@@ -1,4 +1,4 @@
-fn main() {
+pub fn hello() {
     println!("Hello, world!");
 }
 
@@ -7,7 +7,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_main() {
-        main();
+    fn test_hello() {
+        hello();
     }
 }
