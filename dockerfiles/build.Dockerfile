@@ -16,7 +16,7 @@ RUN curl -L --proto '=https' --tlsv1.2 -sSf \
 
 # Copy the project files, and prepare the build
 WORKDIR /app
-COPY Cargo.toml Cargo.lock .
+COPY Cargo.toml Cargo.lock ./
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM rust:1.79.0-slim-bookworm AS cacher
