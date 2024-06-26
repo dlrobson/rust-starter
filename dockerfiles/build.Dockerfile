@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-# Derived from the official
+# Derived from the official rust image
 FROM rust:1.79.0-slim-bookworm AS planner
 
 USER root
@@ -36,7 +36,7 @@ RUN groupadd -g ${GID} ${USERNAME} \
 # Set USER to non-root user
 USER ${USERNAME}
 
-# Re-install cargo-binstall and cargo-chef
+# Install cargo-binstall and cargo-chef, run cargo-chef, and remove them after
 COPY --from=planner --chown=${UID}:${GID} /app/recipe.json /tmp/recipe.json
 RUN mkdir -p /tmp/workspaces \
     && mv /tmp/recipe.json /tmp/workspaces/recipe.json \
