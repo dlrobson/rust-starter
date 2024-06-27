@@ -1,15 +1,17 @@
 [package]
 name = "starter"
+
 authors.workspace = true
+categories.workspace = true
+description.workspace = true
 edition.workspace = true
+keywords.workspace = true
+license.workspace = true
 repository.workspace = true
 readme.workspace = true
-license.workspace = true
-keywords.workspace = true
-description.workspace = true
 version.workspace = true
 
-[lint]
+[lints]
 workspace = true
 
 [dependencies]

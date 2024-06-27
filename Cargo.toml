@@ -8,15 +8,37 @@ members = [
 
 [workspace.package]
 authors = ["Dan Robson <danr.236@gmail.com>"]
+categories = ["starter"]
 edition = "2021"
+keywords = ["starter"]
+license = "MIT"
 repository = "https://github.com/dlrobson/rust-starter"
 readme = "README.md"
-license = "MIT"
-keywords = ["starter"]
 version = "0.1.0"
 description = """
 Rust starter project.
 """
 
-[workspace.lint.clippy]
-pedantic = "deny"
+[workspace.metadata.spellcheck]
+config = ".config/spellcheck.toml"
+
+[workspace.lints.rustdoc]
+all = "warn"
+
+[workspace.lints.clippy]
+cargo = "warn"
+pedantic = "warn"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+future_incompatible = "warn"
+keyword_idents = "warn"
+let_underscore = "warn"
+nonstandard_style = "warn"
+refining_impl_trait = "warn"
+rust_2018_compatibility = "warn"
+rust_2018_idioms = "warn"
+rust_2021_compatibility = "warn"
+rust_2024_compatibility = "warn"
+unused = "warn"
+

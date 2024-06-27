@@ -44,16 +44,6 @@ jobs:
       - name: Run tests
         run: cargo test --locked --profile release
 
-      - name: Generate Docs
-        if: ${{ !cancelled() }}
-        run: cargo doc --profile release --locked --no-deps --document-private-items --all-features
-
-      - name: Upload Docs
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: docs
-          path: target/x86_64-unknown-linux-gnu/doc
 
   quality-check:
     runs-on: ubuntu-latest
@@ -85,11 +75,11 @@ jobs:
 
       - name: Check spelling
         if: ${{ !cancelled() }}
-        run: cargo-spellcheck check
+        run: cargo-spellcheck --code 1
 
       - name: Check for clippy warnings
         if: ${{ !cancelled() }}
-        run: cargo clippy --all-targets --all-features -- -D warnings
+        run: cargo clippy --locked --workspace --all-targets --no-deps --all-features -- -D warnings
 
   code-coverage:
     runs-on: ubuntu-latest
@@ -118,7 +108,8 @@ jobs:
       - name: Run tests with coverage
         run: |
           cargo build --locked    
-          cargo test --locked -- --nocapture
+          cargo test --locked
+          cargo test --doc --locked
           ls -lah .
 
       - uses: taiki-e/install-action@v2
@@ -140,3 +131,25 @@ jobs:
           artifact-name: code-coverage-report
           github-token: ${{ secrets.GITHUB_TOKEN }}
           update-comment: true
+
+  docs:
+    runs-on: ubuntu-latest
+    needs: build-image
+    container:
+      image: ${{ needs.build-image.outputs.name }}:${{ needs.build-image.outputs.tag }}
+      # https://github.com/actions/checkout/issues/1014#issuecomment-1369355566
+      options: --user root
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            target/
+          key: docs-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            docs-
+
+      - name: Generate docs
+        run: |
+          cargo doc --lib --no-deps --all-features --document-private-items
