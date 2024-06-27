@@ -110,7 +110,6 @@ jobs:
           cargo build --locked    
           cargo test --locked
           cargo test --doc --locked
-          ls -lah .
 
       - uses: taiki-e/install-action@v2
         with:
@@ -153,3 +152,5 @@ jobs:
       - name: Generate docs
         run: |
           cargo doc --lib --no-deps --all-features --document-private-items
+        env:
+          RUSTFLAGS: -D warnings
