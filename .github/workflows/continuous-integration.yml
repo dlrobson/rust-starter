@@ -75,7 +75,7 @@ jobs:
 
       - name: Check spelling
         if: ${{ !cancelled() }}
-        run: cargo-spellcheck --code 1
+        run: cargo-spellcheck check --code 1
 
       - name: Check for clippy warnings
         if: ${{ !cancelled() }}
@@ -90,6 +90,7 @@ jobs:
       options: --user root
     env:
       RUSTFLAGS: -Cinstrument-coverage
+      RUSTDOCFLAGS: -Cpanic=abort
       LLVM_PROFILE_FILE: ${{ github.event.repository.name }}-%p-%m.profraw
     # Needed to write a coverage report to the PR
     permissions: write-all
@@ -107,9 +108,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          cargo build --locked    
           cargo test --locked
-          cargo test --doc --locked
 
       - uses: taiki-e/install-action@v2
         with:

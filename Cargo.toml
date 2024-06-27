@@ -31,9 +31,7 @@ pedantic = "warn"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
-future_incompatible = "warn"
-keyword_idents = "warn"
-let_underscore = "warn"
+missing_docs = "warn"
 nonstandard_style = "warn"
 refining_impl_trait = "warn"
 rust_2018_compatibility = "warn"
@@ -41,4 +39,3 @@ rust_2018_idioms = "warn"
 rust_2021_compatibility = "warn"
 rust_2024_compatibility = "warn"
 unused = "warn"
-
