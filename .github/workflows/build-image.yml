@@ -71,20 +71,21 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push Image
-        if: steps.dependency-updates.outputs.src == 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./dockerfiles/build.Dockerfile
-          push: true
-          annotations: |
-            ${{ steps.metadata.outputs.annotations }}
-          tags: |
-            ${{ steps.metadata.outputs.tags }}
-          labels: |
-            ${{ steps.metadata.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
+      # TODO(dan): Uncomment this
+      # - name: Build and Push Image
+      #   if: steps.dependency-updates.outputs.src == 'true'
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: .
+      #     file: ./dockerfiles/build.Dockerfile
+      #     push: true
+      #     annotations: |
+      #       ${{ steps.metadata.outputs.annotations }}
+      #     tags: |
+      #       ${{ steps.metadata.outputs.tags }}
+      #     labels: |
+      #       ${{ steps.metadata.outputs.labels }}
+      #     platforms: linux/amd64,linux/arm64
 
       # When tags are overwritten, the old tags are not removed from the registry.
       # This action removes the old tags. This also handles multi-arch manifests, and

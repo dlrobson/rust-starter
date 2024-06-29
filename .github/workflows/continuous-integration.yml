@@ -158,4 +158,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: docs
-          path: target/x86_64-unknown-linux-gnu/doc
+          path: target/doc
