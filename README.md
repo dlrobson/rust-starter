@@ -23,3 +23,6 @@ Several workflows are included in the repository. They are triggered on differen
 
 - cargo test (Includes doc tests)
 - coverage (via grcov). Defaults to 70% coverage threshold requirement. The build will fail if the coverage is below the threshold.
+
+TODO(dan): Spelllling eror
+
