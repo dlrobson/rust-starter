@@ -26,13 +26,13 @@ all = "warn"
 cargo = "warn"
 pedantic = "warn"
 
+# Defined here: https://doc.rust-lang.org/rustc/lints/listing/allowed-by-default.html
 [workspace.lints.rust]
+keyword_idents_2024 = "warn"
+let_underscore_drop = "warn"
+non_ascii_idents = "forbid"
 unsafe_code = "forbid"
 missing_docs = "warn"
-nonstandard_style = "warn"
-refining_impl_trait = "warn"
-rust_2018_compatibility = "warn"
-rust_2018_idioms = "warn"
-rust_2021_compatibility = "warn"
-rust_2024_compatibility = "warn"
-unused = "warn"
+
+# https://doc.rust-lang.org/nightly/cargo/reference/lints.html
+[workspace.lints.cargo]
