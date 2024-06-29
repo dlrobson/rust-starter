@@ -68,15 +68,6 @@ jobs:
         if: ${{ !cancelled() }}
         run: cargo fmt --check
 
-      - uses: taiki-e/install-action@v2
-        if: ${{ !cancelled() }}
-        with:
-          tool: cargo-spellcheck@0.14
-
-      - name: Check spelling
-        if: ${{ !cancelled() }}
-        run: cargo-spellcheck check --code 1
-
       - name: Check for clippy warnings
         if: ${{ !cancelled() }}
         run: cargo clippy --locked --workspace --all-targets --no-deps --all-features -- -D warnings

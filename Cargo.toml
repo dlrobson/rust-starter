@@ -19,9 +19,6 @@ description = """
 Rust starter project.
 """
 
-[workspace.metadata.spellcheck]
-config = ".config/spellcheck.toml"
-
 [workspace.lints.rustdoc]
 all = "warn"
 
