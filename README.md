@@ -15,7 +15,6 @@ Several workflows are included in the repository. They are triggered on differen
 ### Analyzers
 
 - rustfmt
-- cargo-spellcheck
 - clippy
 - cargo-audit
 
