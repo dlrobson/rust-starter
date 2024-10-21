@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Derived from the official rust image
-FROM rust:1.79.0-slim-bookworm AS planner
+FROM rust:1.82.0-slim-bookworm AS planner
 
 USER root
 
@@ -19,7 +19,7 @@ WORKDIR /app
 COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
-FROM rust:1.79.0-slim-bookworm AS cacher
+FROM rust:1.82.0-slim-bookworm AS cacher
 
 RUN apt-get update && apt-get install -y \
     sudo curl lcov \
