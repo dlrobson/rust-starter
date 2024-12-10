@@ -22,7 +22,7 @@ RUN cargo chef prepare --recipe-path recipe.json
 FROM rust:1.79.0-slim-bookworm AS cacher
 
 RUN apt-get update && apt-get install -y \
-    sudo curl lcov \
+    sudo curl \
     && rm -rf /var/lib/apt/lists/*
 
 ARG UID=1000
