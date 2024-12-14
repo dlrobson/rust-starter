@@ -33,6 +33,3 @@ let_underscore_drop = "warn"
 non_ascii_idents = "forbid"
 unsafe_code = "forbid"
 missing_docs = "warn"
-
-# https://doc.rust-lang.org/nightly/cargo/reference/lints.html
-[workspace.lints.cargo]
