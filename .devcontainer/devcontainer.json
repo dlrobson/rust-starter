@@ -1,7 +1,8 @@
 {
   "build": {
     "context": "..",
-    "dockerfile": "../build.Dockerfile"
+    "dockerfile": "../build.Dockerfile",
+    "target": "base"
   },
   "customizations": {
     "vscode": {
