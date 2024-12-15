@@ -1,6 +1,6 @@
 services:
   devcontainer:
-    container_name: rust-starter-${USER:?}
+    container_name: ${PROJECT_NAME:?}-${USER:?}
     build:
       context: ..
       dockerfile: build.Dockerfile
@@ -11,7 +11,7 @@ services:
         GID: ${GID:?}
     user: ${USER:?}
     volumes:
-      - ..:/workspaces/rust-starter:cached
+      - ..:/workspaces/${PROJECT_NAME:?}:cached
       - cargo-registry:/usr/local/cargo/registry
     command: "bash -c 'trap exit TERM; sleep infinity & wait;'"
 
