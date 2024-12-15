@@ -1,13 +1,11 @@
-# syntax=docker/dockerfile:1
-
 # The final image. The base image is used to install the necessary dependencies
-# required to begin building the project. Useful for Dev containers. Specify the
-# target as `base` to build this image.
+# required to begin building the project.
 FROM rust:1.83.0-slim-bookworm AS base
 
 ARG UID=1000
 ARG GID=1000
 ARG USERNAME=ubuntu
+ARG CARGO_REGISTRY_PATH=/usr/local/cargo/registry
 
 # Setup the user
 RUN apt-get update && \
@@ -16,7 +14,6 @@ RUN apt-get update && \
     groupadd -g ${GID} ${USERNAME} && \
     useradd -m -u ${UID} -g ${GID} -s /bin/bash ${USERNAME} && \
     echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd;
-
 # Install cargo-chef
 RUN apt-get update && \
     apt-get install -y curl && \
@@ -24,10 +21,18 @@ RUN apt-get update && \
     curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash && \
     cargo binstall -y cargo-chef
 
+# Create the dev image. This is useful for dev containers and adds specific
+# setup for development.
+FROM base AS dev
+
+# Create a volume at CARGO_REGISTRY_PATH to cache the cargo registry
+VOLUME [${CARGO_REGISTRY_PATH}]
+RUN mkdir -p ${CARGO_REGISTRY_PATH} && \
+    chown -R ${USERNAME}:${USERNAME} ${CARGO_REGISTRY_PATH}
 USER ${USERNAME}
 
+# The chef image. It is used to prepare the build. It is used to prepare the
 FROM base AS chef
-USER root
 WORKDIR /app
 
 # The planner image. It is used to prepare the build. It is used to prepare the
