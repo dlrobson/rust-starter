@@ -4,11 +4,16 @@ services:
     build:
       context: ..
       dockerfile: build.Dockerfile
-      target: base
+      target: dev
       args:
         USERNAME: ${USER:?}
         UID: ${UID:?}
         GID: ${GID:?}
+    user: ${USER:?}
     volumes:
-      - ../..:/workspaces:cached
+      - ..:/workspaces/rust-starter:cached
+      - cargo-registry:/usr/local/cargo/registry
     command: "bash -c 'trap exit TERM; sleep infinity & wait;'"
+
+volumes:
+  cargo-registry:
