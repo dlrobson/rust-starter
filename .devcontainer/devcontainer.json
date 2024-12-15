@@ -1,9 +1,4 @@
 {
-  "build": {
-    "context": "..",
-    "dockerfile": "../build.Dockerfile",
-    "target": "base"
-  },
   "customizations": {
     "vscode": {
       "extensions": [
@@ -11,11 +6,11 @@
       ]
     }
   },
-  "mounts": [
-    "source=${localEnv:HOME}/.zsh_history,target=/home/user/.zsh_history,type=bind"
+  "dockerComposeFile": [
+    "compose.yaml",
+    "compose.override.yaml"
   ],
   "name": "${localWorkspaceFolderBasename}",
-  "runArgs": [
-    "--name=${localWorkspaceFolderBasename}_${localEnv:USER}"
-  ]
+  "service": "devcontainer",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}"
 }

@@ -1,0 +1,4 @@
+services:
+  devcontainer:
+    volumes:
+      - ${HOME:?}/.zsh_history:${HOME:?}/.zsh_history
