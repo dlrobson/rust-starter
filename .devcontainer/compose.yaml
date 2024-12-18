@@ -2,18 +2,12 @@ services:
   devcontainer:
     container_name: ${PROJECT_NAME:?}-${USER:?}
     build:
-      context: ..
-      dockerfile: build.Dockerfile
-      target: dev
+      pull: true
+      dockerfile: devcontainer.Dockerfile
       args:
-        USERNAME: ${USER:?}
+        USER: ${USER:?}
         UID: ${UID:?}
         GID: ${GID:?}
-    user: ${USER:?}
     volumes:
       - ..:/workspaces/${PROJECT_NAME:?}:cached
-      - cargo-registry:/usr/local/cargo/registry
     command: "bash -c 'trap exit TERM; sleep infinity & wait;'"
-
-volumes:
-  cargo-registry:
