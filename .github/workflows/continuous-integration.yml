@@ -95,8 +95,9 @@ jobs:
         with:
           tool: grcov@0.8
 
-      - name: Install genhtml
-        run: apt-get install -y lcov
+      - uses: ConorMacBride/install-package@v1
+        with:
+          apt: lcov
 
       - name: Generate LCOV coverage file
         run: |
