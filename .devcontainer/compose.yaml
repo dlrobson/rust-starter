@@ -1,13 +1,11 @@
 services:
   devcontainer:
-    container_name: ${PROJECT_NAME:?}-${USER:?}
+    container_name: rust-starter-${USER:?}
     build:
       pull: true
       dockerfile: devcontainer.Dockerfile
       args:
         USER: ${USER:?}
-        UID: ${UID:?}
-        GID: ${GID:?}
     volumes:
-      - ..:/workspaces/${PROJECT_NAME:?}:cached
+      - ..:/workspaces/rust-starter:cached
     command: "bash -c 'trap exit TERM; sleep infinity & wait;'"
