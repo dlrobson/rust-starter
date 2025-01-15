@@ -11,7 +11,7 @@ env:
   COVERAGE_THRESHOLD: 70
   RUST_LOG: debug
   RUST_BACKTRACE: full
-  RUST_VERSION: 1.83.0
+  RUST_VERSION: 1.84.0
 
 # This stops any running jobs when a new commit is pushed
 # Reference: https://stackoverflow.com/a/72408109
