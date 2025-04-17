@@ -1,6 +1,7 @@
+name: rust-starter-${USER:?}
+
 services:
   devcontainer:
-    container_name: rust-starter-${USER:?}
     build:
       pull: true
       dockerfile: devcontainer.Dockerfile
