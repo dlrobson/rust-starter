@@ -8,138 +8,143 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  COVERAGE_THRESHOLD: 70
   RUST_LOG: debug
   RUST_BACKTRACE: full
-  RUST_VERSION: 1.84.0
 
-# This stops any running jobs when a new commit is pushed
-# Reference: https://stackoverflow.com/a/72408109
+# This creates a sequential queue for 'main' (by having a static group name) 
+# and cancels in-progress runs for just feature branches/PRs.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
+  prepare-ci-image:
+    uses: ./.github/workflows/prepare-ci-image.yml
+    permissions:
+      packages: write
+    with:
+      registry: ghcr.io
+      image-name: ${{ github.repository }}-ci
+      dockerfile-context: images/ci/
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+
+  workflow-initialization:
+    runs-on: ubuntu-slim
+    if: success() || failure()
+    needs: prepare-ci-image
+    outputs:
+      image: ${{ needs.prepare-ci-image.outputs.image }}
+    steps:
+      - name: Check prepare-ci-image result
+        run: |
+          if [ "${{ needs.prepare-ci-image.result }}" != "success" ]; then
+            echo "prepare-ci-image failed (result: ${{ needs.prepare-ci-image.result }}). Failing workflow-initialization job explicitly."
+            exit 1
+          fi
+      - name: Set outputs
+        run: |
+          echo "image=${{ needs.prepare-ci-image.outputs.image }}" >> $GITHUB_OUTPUT
+
   build:
     runs-on: ubuntu-latest
+    needs: workflow-initialization
+    container: &build-container
+      image: ${{ needs.workflow-initialization.outputs.image }}
+      options: --user 0
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: ${{ env.RUST_VERSION }}
-
-      - uses: actions/cache@v4
+      - uses: actions/checkout@v6
+      - &cache
+        uses: actions/cache@v5
         with:
           path: |
             target/
-          key: build-${{ hashFiles('Cargo.lock') }}
-          restore-keys: |
-            build-
+          key: ${{ github.job }}-${{ hashFiles('Cargo.lock') }}
 
       - name: Run tests
-        run: cargo test --locked --profile release
+        run: just test
 
 
   quality-check:
     runs-on: ubuntu-latest
-
+    needs: workflow-initialization
+    container: *build-container
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: ${{ env.RUST_VERSION }}
-
-      - uses: actions/cache@v4
-        with:
-          path: |
-            target/
-          key: quality-${{ hashFiles('Cargo.lock') }}
-          restore-keys: |
-            quality-
+      - uses: actions/checkout@v6
+      - *cache
 
       - name: Check Rust formatting
         if: ${{ !cancelled() }}
-        run: cargo fmt --check
+        run: just fmt --check
 
       - name: Check for clippy warnings
         if: ${{ !cancelled() }}
-        run: cargo clippy --locked --workspace --all-targets --no-deps --all-features -- -D warnings
+        run: just clippy
 
   code-coverage:
     runs-on: ubuntu-latest
+    needs: workflow-initialization
+    container: *build-container
     env:
-      RUSTFLAGS: -Cinstrument-coverage
-      LLVM_PROFILE_FILE: ${{ github.event.repository.name }}-%p-%m.profraw
-    # Needed to write a coverage report to the PR
-    permissions: write-all
-     
+      COVERAGE_HTML_DIRECTORY: /tmp/coverage
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@v6
+      - *cache
+
+      - name: Generate code coverage
+        run: just coverage-html-directory=${{ env.COVERAGE_HTML_DIRECTORY }} coverage
+
+      - name: Upload coverage reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v6
         with:
-          toolchain: ${{ env.RUST_VERSION }}
-
-      - uses: actions/cache@v4
-        with:
-          path: |
-            target/**/*[\!.gcno\|\!.gcda|\!.profraw]
-          key: coverage-${{ hashFiles('Cargo.lock') }}
-          restore-keys: |
-            coverage-
-
-      - name: Run tests with coverage
-        run: |
-          cargo test --locked
-
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: grcov@0.8
-
-      - uses: ConorMacBride/install-package@v1
-        with:
-          apt: lcov
-
-      - name: Generate LCOV coverage file
-        run: |
-          grcov . \
-            --branch -s . --binary-path ./target/ \
-            -t lcov -o coverage.lcov \
-            --keep-only "crates/**" --ignore-not-existing
-
-      - name: Report code coverage
-        uses: zgosalvez/github-actions-report-lcov@v4
-        with:
-          coverage-files: coverage.lcov
-          minimum-coverage: ${{ env.COVERAGE_THRESHOLD }}
-          artifact-name: code-coverage-report
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          update-comment: true
+          name: coverage-report
+          path: ${{ env.COVERAGE_HTML_DIRECTORY }}
 
   docs:
     runs-on: ubuntu-latest
+    needs: workflow-initialization
+    container: *build-container
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: ${{ env.RUST_VERSION }}
-
-      - uses: actions/cache@v4
-        with:
-          path: |
-            target/
-          key: docs-${{ hashFiles('Cargo.lock') }}
-          restore-keys: |
-            docs-
+      - uses: actions/checkout@v6
+      - *cache
 
       - name: Generate docs
         if: ${{ !cancelled() }}
-        run: cargo doc --profile release --locked --lib --no-deps --all-features --document-private-items
-        env:
-          RUSTDOCFLAGS: -D warnings
+        run: just doc
 
       - name: Upload Docs
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: docs
           path: target/doc
+
+  call-security-audit:
+    needs: workflow-initialization
+    uses: ./.github/workflows/audit.yml
+    with:
+      image: ${{ needs.workflow-initialization.outputs.image }}
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: workflow-initialization
+    container: *build-container
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build production Docker image
+        run: just docker-build
+
+  build-production-image:
+    needs: workflow-initialization
+    permissions:
+      packages: write
+    uses: ./.github/workflows/build-image.yml
+    with:
+      registry: ghcr.io
+      image-name: ${{ github.repository }}
+      image-tag: ${{ github.event.pull_request.number && format('pr-{0}', github.event.pull_request.number) || 'latest' }}
+      dockerfile-context: .
+      dockerfile: images/production/Dockerfile
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}

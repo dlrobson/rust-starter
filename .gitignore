@@ -1,1 +1,4 @@
 target
+
+.devcontainer/compose.override.yaml
+.devcontainer/.env

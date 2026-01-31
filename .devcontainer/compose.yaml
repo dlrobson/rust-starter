@@ -1,12 +1,11 @@
-name: rust-starter-${USER:?}
+name: ${REPO_NAME:?}-${PWD:?}
 
 services:
   devcontainer:
-    build:
-      pull: true
-      dockerfile: devcontainer.Dockerfile
-      args:
-        USER: ${USER:?}
+    image: ghcr.io/dlrobson/${REPO_NAME}-ci:latest
+    group_add:
+      - ${DOCKER_GID:?}
     volumes:
-      - ..:/workspaces/rust-starter:cached
+      - ..:/workspaces/${REPO_NAME:?}:cached
+      - /var/run/docker.sock:/var/run/docker.sock
     command: "bash -c 'trap exit TERM; sleep infinity & wait;'"
