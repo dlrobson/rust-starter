@@ -1,18 +1,8 @@
-# Rust Starter
+# Rust Starter Template
 
-This is a sample starter project for Rust. It includes a simple hello world program. Adds several GitHub Actions workflows for CI/CD.
+## CI/CD
 
-## GitHub Actions Workflows
-
-Several workflows are included in the repository. They are triggered on different events.
-
-### Analyzers
-
-- rustfmt
-- clippy
-- cargo-audit
-
-### Tests
-
-- cargo test (Includes doc tests)
-- coverage (via grcov). Defaults to 70% coverage threshold requirement. The build will fail if the coverage is below the threshold.
+CI/CD performs automatic dependency updates through renovatebot, and runs tests
+on each pull request. A `RENOVATE_TOKEN` secret is required for the dependency
+updates to work.
+[See here for more information](https://github.com/renovatebot/github-action/blob/adad17015c735c8b1f417ddf1f7f19750a140881/README.md#token).

@@ -1,15 +1,22 @@
 name: Security audit
 
 on:
-  push:
-    paths: 
-      - '**/Cargo.lock'
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_call:
+    inputs:
+      image:
+        description: 'The full CI image reference to use'
+        required: false
+        type: string
 
 jobs:
   security-audit:
     runs-on: ubuntu-latest
+    container:
+      image: ${{ inputs.image || format('ghcr.io/{0}-ci:latest', github.repository) }}
+      options: --user 0
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions-rs/audit-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v6
+      - name: Run security audit
+        run: just audit

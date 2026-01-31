@@ -2,6 +2,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
+        "nefrob.vscode-just-syntax",
         "rust-lang.rust-analyzer"
       ]
     }
@@ -10,12 +11,7 @@
     "compose.yaml",
     "compose.override.yaml"
   ],
-  "initializeCommand": {
-    // Create a `compose.override.yaml` file if it doesn't exist. This
-    // stores user specific configuration settings that are not the same
-    // for everyone.
-    "createOverrideFile": "touch -a .devcontainer/compose.override.yaml"
-  },
+  "initializeCommand": ".devcontainer/initialize.sh",
   "name": "${localWorkspaceFolderBasename}",
   "service": "devcontainer",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}"
