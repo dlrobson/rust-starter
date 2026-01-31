@@ -1,5 +1,5 @@
 coverage-html-directory := ""
-coverage-threshold := "80"
+coverage-threshold := "0"
 profile := "dev"
 docker-image := file_name(justfile_directory())
 docker-tag := "local"

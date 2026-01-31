@@ -7,9 +7,9 @@ members = [
 
 [workspace.package]
 authors = ["Dan Robson <danr.236@gmail.com>"]
-categories = []
+categories = ["TODO"]
 edition = "2024"
-keywords = []
+keywords = ["TODO"]
 license = "MIT"
 repository = "https://github.com/dlrobson/rust-starter"
 readme = "README.md"

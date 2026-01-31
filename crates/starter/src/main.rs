@@ -2,5 +2,5 @@
 
 #[expect(clippy::print_stdout, reason = "This is a starter template")]
 fn main() {
-    println!("Hello, world!");
+    println!("{}", starter::hello_world());
 }
