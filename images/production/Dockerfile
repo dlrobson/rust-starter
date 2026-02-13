@@ -1,4 +1,4 @@
-FROM rust:1.93.0-slim-trixie AS cargo-about-base
+FROM rust:1.93.1-slim-trixie AS cargo-about-base
 RUN apt-get update && \
     apt-get install -y \
     # Binstall dependencies
@@ -9,7 +9,7 @@ RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/ca
     cargo binstall --no-confirm $(jq -r '.[] | "\(.crate)@\(.version)"' images/production/binstall-versions.json) && \
     cargo about generate --config images/production/about.toml --output-file /tmp/licenses.html images/production/about.hbs
 
-FROM rust:1.93.0-slim-trixie AS build-base
+FROM rust:1.93.1-slim-trixie AS build-base
 WORKDIR /app
 COPY . .
 RUN cargo build --release && \
