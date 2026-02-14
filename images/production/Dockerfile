@@ -5,7 +5,7 @@ RUN apt-get update && \
     curl jq && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY . .
-RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/v1.17.4/install-from-binstall-release.sh | bash && \
+RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/v1.17.5/install-from-binstall-release.sh | bash && \
     cargo binstall --no-confirm $(jq -r '.[] | "\(.crate)@\(.version)"' images/production/binstall-versions.json) && \
     cargo about generate --config images/production/about.toml --output-file /tmp/licenses.html images/production/about.hbs
 
