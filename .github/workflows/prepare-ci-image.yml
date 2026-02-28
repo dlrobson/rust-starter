@@ -107,18 +107,6 @@ jobs:
           echo "should-build=$SHOULD_BUILD" >> "$GITHUB_OUTPUT"
           echo "should-retag=$SHOULD_RETAG" >> "$GITHUB_OUTPUT"
 
-  retag-to-latest:
-    needs: get-tag
-    if: needs.get-tag.outputs.should-retag == 'true'
-    uses: ./.github/workflows/retag-image.yml
-    with:
-      registry: ${{ inputs.registry }}
-      image-name: ${{ inputs.image-name }}
-      source-tag: ${{ needs.get-tag.outputs.tag }}
-      target-tag: latest
-    secrets:
-      token: ${{ secrets.token }}
-
   build-image:
     needs: get-tag
     if: needs.get-tag.outputs.should-build == 'true'
@@ -128,5 +116,21 @@ jobs:
       image-name: ${{ inputs.image-name }}
       image-tag: ${{ needs.get-tag.outputs.tag }}
       dockerfile-context: ${{ inputs.dockerfile-context }}
+    secrets:
+      token: ${{ secrets.token }}
+
+  retag-to-latest:
+    needs: [get-tag, build-image]
+    # Run if retagging is needed, and either the build succeeded or was skipped (image already existed)
+    if: |
+      always() &&
+      needs.get-tag.outputs.should-retag == 'true' &&
+      (needs.build-image.result == 'success' || needs.build-image.result == 'skipped')
+    uses: ./.github/workflows/retag-image.yml
+    with:
+      registry: ${{ inputs.registry }}
+      image-name: ${{ inputs.image-name }}
+      source-tag: ${{ needs.get-tag.outputs.tag }}
+      target-tag: latest
     secrets:
       token: ${{ secrets.token }}
