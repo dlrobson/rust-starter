@@ -2,11 +2,11 @@ name: Security audit
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: "0 0 * * *"
   workflow_call:
     inputs:
       image:
-        description: 'The full CI image reference to use'
+        description: "The full CI image reference to use"
         required: false
         type: string
 
