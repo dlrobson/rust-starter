@@ -144,7 +144,6 @@ jobs:
       image-name: ${{ github.repository }}
       image-tags: |
         ${{ github.event.pull_request.number && format('pr-{0}', github.event.pull_request.number) || 'latest' }}
-      dockerfile-context: .
-      dockerfile: images/production/Dockerfile
+      dockerfile-context: images/production
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
