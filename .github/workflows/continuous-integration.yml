@@ -11,7 +11,7 @@ env:
   RUST_LOG: debug
   RUST_BACKTRACE: full
 
-# This creates a sequential queue for 'main' (by having a static group name) 
+# This creates a sequential queue for 'main' (by having a static group name)
 # and cancels in-progress runs for just feature branches/PRs.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   prepare-ci-image:
-    uses: ./.github/workflows/prepare-ci-image.yml
+    uses: dlrobson/toolbox/.github/workflows/prepare-ci-image.yml@main
     permissions:
       packages: write
     with:
@@ -30,7 +30,7 @@ jobs:
       token: ${{ secrets.GITHUB_TOKEN }}
 
   workflow-initialization:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     if: success() || failure()
     needs: prepare-ci-image
     outputs:
@@ -63,7 +63,6 @@ jobs:
 
       - name: Run tests
         run: just test
-
 
   quality-check:
     runs-on: ubuntu-latest
@@ -139,11 +138,12 @@ jobs:
     needs: workflow-initialization
     permissions:
       packages: write
-    uses: ./.github/workflows/build-image.yml
+    uses: dlrobson/toolbox/.github/workflows/build-image.yml@main
     with:
       registry: ghcr.io
       image-name: ${{ github.repository }}
-      image-tag: ${{ github.event.pull_request.number && format('pr-{0}', github.event.pull_request.number) || 'latest' }}
+      image-tags: |
+        ${{ github.event.pull_request.number && format('pr-{0}', github.event.pull_request.number) || 'latest' }}
       dockerfile-context: .
       dockerfile: images/production/Dockerfile
     secrets:
