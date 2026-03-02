@@ -95,7 +95,7 @@ jobs:
 
       - name: Upload coverage reports
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: ${{ env.COVERAGE_HTML_DIRECTORY }}
@@ -114,7 +114,7 @@ jobs:
 
       - name: Upload Docs
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: docs
           path: target/doc
