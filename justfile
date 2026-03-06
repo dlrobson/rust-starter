@@ -35,4 +35,7 @@ fmt *ARGS:
 test *ARGS:
     cargo test --locked --profile {{profile}} {{ARGS}}
 
+udeps:
+    cargo +nightly udeps --locked --all-targets --all-features
+
 unit-test: (test "--lib")

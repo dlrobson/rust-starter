@@ -119,6 +119,18 @@ jobs:
           name: docs
           path: target/doc
 
+  udeps:
+    runs-on: ubuntu-latest
+    needs: workflow-initialization
+    permissions: {}
+    container: *build-container
+    steps:
+      - uses: actions/checkout@v6
+      - *cache
+
+      - name: Check for unused dependencies
+        run: just udeps
+
   call-security-audit:
     needs: workflow-initialization
     uses: ./.github/workflows/audit.yml
