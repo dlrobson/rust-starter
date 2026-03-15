@@ -1,1 +1,1 @@
-FROM ghcr.io/dlrobson/rust-ci:1.94.0-1
+FROM ghcr.io/dlrobson/rust-ci:1.94.0-2
